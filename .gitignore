@@ -37,4 +37,9 @@ screenshot
 .firebase
 .eslintcache
 
+# idea
+.idea
+*.iml
+*.ipr
+
 build
