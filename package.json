@@ -15,6 +15,8 @@
   ],
   "dependencies": {
     "@ant-design/pro-layout": "^4.5.10",
+    "@antv/data-set": "^0.10.2",
+    "@antv/g6": "^3.0.4",
     "ant-design-pro": "^2.3.2",
     "antd": "^3.20.0",
     "classnames": "^2.2.6",
