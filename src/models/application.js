@@ -1,4 +1,4 @@
-import { queryApplication } from '../services/application';
+import { queryApplicationByKeyword } from '../services/application';
 
 const ApplicationModel = {
   namespace: 'application',
@@ -6,16 +6,16 @@ const ApplicationModel = {
     list: [],
   },
   reducers: {
-    restate(state, action) {
+    restate (state, action) {
       return {
         ...state,
-        list: action.payload 
+        list: action.payload
       }
     },
   },
   effects: {
-    *fetch({payload}, { call, put }) {
-      const response = yield call(queryApplication,payload);
+    * fetch ({ payload }, { call, put }) {
+      const response = yield call(queryApplicationByKeyword, payload.applicationName);
       yield put({
         type: 'restate',
         payload: response,

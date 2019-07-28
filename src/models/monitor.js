@@ -47,7 +47,7 @@ const MonitorModel = {
     loadInfo (state, action) {
       return {
         ...state,
-        info: action.payload.info
+        info: action.payload
       }
     },
     loadThread (state, action) {

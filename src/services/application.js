@@ -1,12 +1,12 @@
 import { stringify } from 'qs';
 import request from '../utils/request';
 
-export async function queryApplication (params) {
-  return request(`/api/application/list?${ stringify(params) }`);
+export async function queryApplicationByKeyword (keyword) {
+  return request(`/api/application?keyword=${keyword}`);
 }
 
 export async function queryInstance (params) {
-  return request(`/api/instance/list?${ stringify(params) }`);
+  return request(`/api/instance?${ stringify(params) }`);
 }
 
 export async function queryInstanceEnv (instanceId) {
