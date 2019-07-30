@@ -35,7 +35,7 @@ const MonitorModel = {
     loadMappings (state, action) {
       return {
         ...state,
-        mappings: action.payload.mappings
+        mappings: action.payload
       }
     },
     loadLoggers (state, action) {
