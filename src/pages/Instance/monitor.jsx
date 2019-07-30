@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "dva";
-import { Card } from 'antd';
+import { Card, Modal } from 'antd';
 import styles from './monitor.less';
 import DataSet from "@antv/data-set";
 import { Chart, Coord, Geom, Label, Tooltip, View } from "bizcharts";
@@ -37,12 +37,16 @@ class InstanceMonitor extends React.Component {
     return (
       <div>
         <div style={ { display: 'flex' } }>
-          <PropsMonitor data={ this.props.monitor.env }
-                        graph={ "#env/graph" }
-                        detail={ "#info/detail" }/>
-          <PropsMonitor data={ this.props.monitor.info }
-                        graph={ "#info/graph" }
-                        detail={ "#info/detail" }/>
+          <PropsMonitor
+            title="Environment"
+            data={ this.props.monitor.env }
+            graphAnchor="#env/graph"
+            detailAnchor="#env/detail"/>
+          <PropsMonitor
+            title="Information"
+            data={ this.props.monitor.info }
+            graphAnchor="#info/graph"
+            detailAnchor="#info/detail"/>
         </div>
       </div>
     )
@@ -57,30 +61,30 @@ class PropsMonitor extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      graph: window.location.hash === props.graph,
-      detail: window.location.hash == props.detail,
+      graph: window.location.hash === props.graphAnchor,
+      detail: window.location.hash === props.detailAnchor,
     }; // 使用锚点控制详情页面展示
   }
 
   switchGraph (visible) {
     this.setState({ graph: visible });
-    window.location.hash = visible ? this.props.graph : "#";
+    window.location.hash = visible ? this.props.graphAnchor : "#";
   }
 
   switchDetail (visible) {
     this.setState({ detail: visible });
-    window.location.hash = visible ? this.props.detail : "#";
+    window.location.hash = visible ? this.props.detailAnchor : "#";
   }
 
   render () {
     return (
-      <Card title="Environment" bordered={ false }
+      <Card title={ this.props.title } bordered={ false }
             extra={ <a href="javascript:;" onClick={ () => this.switchGraph(true) }>Graph</a> }
             style={ { width: "44%", padding: "2%" } }>
         <div>
-          <!-- 展示由接口生成的 overview 信息 -->
           <div>
             {
+              //展示由接口生成的 overview 信息
               (this.props.data['overview'] === undefined ? [] : this.props.data['overview'])
                 .map(item => {
                   return (
@@ -102,22 +106,27 @@ class PropsMonitor extends React.Component {
               <span className={ styles["item-info-span-content"] }></span>
             </div>
           </div>
-          <!-- Graph 模态框 -->
-          <div style={ { visibility: this.state.graph ? 'visible' : 'hidden' } }>
+          <div>
             {
+              //Graph 模态框
               this.props.data.detail === undefined ? (<div></div>) : (
-                <PropertyTreeGraph dismiss={ () => this.switchGraph(false) }
-                                   data={ this.props.data.detail }/>)
+                <PropertyTreeGraph
+                  title={ this.props.title || "Properties" }
+                  visible={ this.state.graph }
+                  dismiss={ () => this.switchGraph(false) }
+                  data={ this.props.data.detail }/>)
             }
           </div>
-          <!-- Detail 模态框 -->
-          <div style={ { visibility: this.state.detail ? 'visible' : 'hidden' } }>
-            <a href="javascript:;" onClick={ () => this.switchDetail(false) }>close</a>
-            {/*{*/ }
-            {/*  this.props.data.detail == undefined ? (<div></div>) : (*/ }
-            {/*    */ }
-            {/*  )*/ }
-            {/*}*/ }
+          <div>
+            {
+              //Graph 模态框
+              this.props.data.detail === undefined ? (<div></div>) : (
+                <PropertyDetail
+                  title={ this.props.title || "Properties" }
+                  visible={ this.state.detail }
+                  dismiss={ () => this.switchDetail(false) }
+                  data={ this.props.data.detail }/>)
+            }
           </div>
         </div>
       </Card>
@@ -129,6 +138,7 @@ class PropsMonitor extends React.Component {
  * 用于展示树状结构的属性图
  */
 class PropertyTreeGraph extends React.Component {
+
   render () {
     const dv = new DataSet.View().source(this.props.data, {
       type: "hierarchy",
@@ -156,11 +166,13 @@ class PropertyTreeGraph extends React.Component {
       }
     });
     return (
-      <div className={ styles['monitor-detail-bg'] } onClick={ this.props.dismiss }>
+      <Modal title={ this.props.title }
+             width="85%"
+             visible={ this.props.visible }
+             onCancel={ this.props.dismiss }
+             onOk={ this.props.dismiss }>
         <Chart
-          className={ styles['monitor-detail-content'] }
-          height={ this.props.height || window.innerHeight * .98 }
-          width={ window.innerWidth * .78 }>
+          width={ window.innerWidth * .8 }>
           <Coord reflect="y"/>
           <Tooltip/>
           <View
@@ -201,13 +213,59 @@ class PropertyTreeGraph extends React.Component {
             </Geom>
           </View>
         </Chart>
-      </div>
+      </Modal>
     );
   }
 }
 
 class PropertyDetail extends React.Component {
 
+  convertToList (data, ref, prefix) {
+    if (ref === undefined || data == undefined) {
+      ref = []
+    }
+    const thisPrefix = prefix == undefined ? "" : prefix;
+    if (data.children === undefined) {
+      ref.push({
+        "name": data.name,
+        "value": data.value,
+        prefix: thisPrefix
+      })
+    } else {
+      for (const child of data.children) {
+        const nextPrefix = thisPrefix.length === 0 ? data.name : thisPrefix + ' > ' + data.name;
+        this.convertToList(child, ref, nextPrefix)
+      }
+    }
+    return ref
+  }
+
+
+  render () {
+    const list = this.convertToList(this.props.data)
+    return (
+      <Modal
+        title={ this.props.title }
+        visible={ this.props.visible }
+        width="85%"
+        onCancel={ this.props.dismiss }
+        onOk={ this.props.dismiss }>
+
+        {
+          list.map(item => {
+            return (
+              <div key={ item.prefix + item.name } className={ styles["item-info"] }>
+                <span className={ styles["item-info-span-title"] }>{ item.name }</span>
+                <span className={ styles["item-info-span-content"] }>{ item.value }</span>
+                <span className={ styles["tooltips"] }>{ item.prefix }</span>
+              </div>
+            );
+          })
+        }
+
+      </Modal>
+    );
+  }
 
 }
 
