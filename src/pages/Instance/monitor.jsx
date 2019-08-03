@@ -3,7 +3,7 @@ import { connect } from "dva";
 import { Card, Modal } from 'antd';
 import styles from './monitor.less';
 import DataSet from "@antv/data-set";
-import { Axis, Chart, Coord, Geom, Label, Tooltip, View } from "bizcharts";
+import { Axis, Chart, Coord, Geom, Label, Legend, Tooltip, View, } from "bizcharts";
 
 /**
  * 应用信息展示控制台
@@ -15,37 +15,55 @@ class InstanceMonitor extends React.Component {
 
   componentDidMount () {
     this.load('fetchEnv');
-    this.load('fetchHealth');
     this.load('fetchMappings');
     this.load('fetchLoggers');
     this.load('fetchInfo');
+    this.load('fetchHealth');
     this.load('fetchMemory');
     this.load('fetchThread');
+
+    const intervalId = setInterval(() => {
+      this.load('fetchHealth');
+      this.load('fetchMemory');
+      this.load('fetchThread');
+
+    }, 5000);
+    this.setState({ intervalId: intervalId })
   }
 
-  load = (type) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'monitor/' + type,
-      payload: {
-        instanceId: this.props.id
-      }
-    })
-  };
+  componentWillUnmount () {
+    // use intervalId from the state to clear the interval
+    clearInterval(this.state.intervalId);
+  }
 
   render () {
     return (
       <div>
-        <div style={ { display: 'flex' } }>
-          <MetricsGraph/>
-          <MetricsGraph/>
-        </div>
         <div style={ { display: 'flex' } }>
           <PropsMonitor
             title="Environment"
             data={ this.props.monitor.env }
             graphAnchor="#env/graph"
             detailAnchor="#env/detail"/>
+          <MetricsGraph
+            title="Thread"
+            data={ this.getThreadSummary() }/>
+        </div>
+        <div style={ { display: 'flex' } }>
+          <MetricsGraph
+            title="Memory:Heap"
+            data={ this.getMemoryHeapData() }/>
+          <MetricsGraph
+            title="Memory:NonHeap"
+            data={ this.getMemoryNonHeapData() }/>
+        </div>
+        <div style={ { display: 'flex' } }>
+          <PropsMonitor
+            title="Health"
+            data={ this.props.monitor.health }
+            graphAnchor="#env/health"
+            detailAnchor="#env/health"/>
+
           <PropsMonitor
             title="Loggers"
             data={ this.props.monitor.loggers }
@@ -67,181 +85,116 @@ class InstanceMonitor extends React.Component {
       </div>
     )
   };
+
+  load = (type) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'monitor/' + type,
+      payload: {
+        instanceId: this.props.id
+      }
+    })
+  };
+
+  getThreadSummary () {
+    if (!this.props.monitor.thread) {
+      return []
+    }
+
+    const result = this.props.monitor.thread.map(item => {
+      return [{
+        name: "peak",
+        timestamp: item.timestamp.substr(11),
+        value: item.value.peak
+      }, {
+        name: "daemon",
+        timestamp: item.timestamp.substr(11),
+        value: item.value.daemon
+      }, {
+        name: "live",
+        timestamp: item.timestamp.substr(11),
+        value: item.value.live
+      },]
+    }).reduce((a, b) => a.concat(b), []);
+    console.log(result);
+    return result;
+  }
+
+  getMemoryHeapData () {
+    if (!this.props.monitor.memory) {
+      return []
+    }
+
+    const result = this.props.monitor.memory.map(item => {
+      return [{
+        name: "total",
+        timestamp: item.timestamp.substr(11),
+        value: item.value.heap.size
+      }, {
+        name: "used",
+        timestamp: item.timestamp.substr(11),
+        value: item.value.heap.used
+      }]
+    }).reduce((a, b) => a.concat(b), []);
+    console.log(result);
+    return result
+  }
+
+  getMemoryNonHeapData () {
+    if (!this.props.monitor.memory) {
+      return []
+    }
+
+    const result = this.props.monitor.memory.map(item => {
+      const nonheap = item.value.nonHeap;
+      return [{
+        name: "total",
+        timestamp: item.timestamp.substr(11),
+        value: nonheap.size
+      }, {
+        name: "used",
+        timestamp: item.timestamp.substr(11),
+        value: nonheap.used
+      }, {
+        name: "metaspace",
+        timestamp: item.timestamp.substr(11),
+        value: nonheap.metaspace
+      },]
+    }).reduce((a, b) => a.concat(b), []);
+    console.log(result);
+    return result
+  }
 }
 
 class MetricsGraph extends React.Component {
 
   render () {
-    const data = [
-      {
-        country: "Asia",
-        year: "1750",
-        value: 502
-      },
-      {
-        country: "Asia",
-        year: "1800",
-        value: 635
-      },
-      {
-        country: "Asia",
-        year: "1850",
-        value: 809
-      },
-      {
-        country: "Asia",
-        year: "1900",
-        value: 947
-      },
-      {
-        country: "Asia",
-        year: "1950",
-        value: 1402
-      },
-      {
-        country: "Asia",
-        year: "1999",
-        value: 3634
-      },
-      {
-        country: "Asia",
-        year: "2050",
-        value: 5268
-      },
-      {
-        country: "Africa",
-        year: "1750",
-        value: 106
-      },
-      {
-        country: "Africa",
-        year: "1800",
-        value: 107
-      },
-      {
-        country: "Africa",
-        year: "1850",
-        value: 111
-      },
-      {
-        country: "Africa",
-        year: "1900",
-        value: 133
-      },
-      {
-        country: "Africa",
-        year: "1950",
-        value: 221
-      },
-      {
-        country: "Africa",
-        year: "1999",
-        value: 767
-      },
-      {
-        country: "Africa",
-        year: "2050",
-        value: 1766
-      },
-      {
-        country: "Europe",
-        year: "1750",
-        value: 163
-      },
-      {
-        country: "Europe",
-        year: "1800",
-        value: 203
-      },
-      {
-        country: "Europe",
-        year: "1850",
-        value: 276
-      },
-      {
-        country: "Europe",
-        year: "1900",
-        value: 408
-      },
-      {
-        country: "Europe",
-        year: "1950",
-        value: 547
-      },
-      {
-        country: "Europe",
-        year: "1999",
-        value: 729
-      },
-      {
-        country: "Europe",
-        year: "2050",
-        value: 628
-      },
-      {
-        country: "Oceania",
-        year: "1750",
-        value: 200
-      },
-      {
-        country: "Oceania",
-        year: "1800",
-        value: 200
-      },
-      {
-        country: "Oceania",
-        year: "1850",
-        value: 200
-      },
-      {
-        country: "Oceania",
-        year: "1900",
-        value: 300
-      },
-      {
-        country: "Oceania",
-        year: "1950",
-        value: 230
-      },
-      {
-        country: "Oceania",
-        year: "1999",
-        value: 300
-      },
-      {
-        country: "Oceania",
-        year: "2050",
-        value: 460
-      }
-    ];
-    const ds = new DataSet();
-    const dv = ds.createView("tt");
-    dv.source(data);
+    const { DataView } = DataSet;
+    const dv = new DataView().source(this.props.data);
     dv.transform({
       type: "percent",
       field: "value",
-      dimension: "year",
-      groupBy: ["country"],
+      dimension: "timestamp",
+      groupBy: ["name"],
       as: "percent"
     });
-    console.log(dv);
     return (
-      <Card title="Metrics"
-            style={ { width: "44%", paddingLeft: "2%", paddingRight: "2%" } }
-            bordered={ false }>
-        <Chart data={ dv }
-               height={ window.innerHeight * .3 }
-               forceFit={ true }
-               style={ { marginLeft: "-2%", marginRight: "-2%" } }>
-          <Axis name="year"/>
-          <Axis name="percent"/>
-          <Tooltip/>
-          <Geom
-            type="area"
-            adjustType="stack"
-            position={ "year*percent" }
-            color={ ["country", ["#ffd54f", "#ef6c00", "#1976d2", "#64b5f6"]] }
-          />
+      <Card title={ this.props.title } bordered={ false }
+            style={ { width: "44%", paddingLeft: "2%", paddingRight: "2%" } }>
+        <Chart data={ this.props.data } height="300" scale={ {
+          value: {
+            min: 0
+          },
+          timestamp: {
+            range: [0, 1]
+          }
+        } }>
+          <Axis name="date"/>
+          <Axis name="value"/>
+          <Legend/>
+          <Tooltip crosshairs={ { type: "y" } }/>
+          <Geom type="line" position="timestamp*value" color="name"/>
+          <Geom type="line" position="timestamp*value" size={ 2 } color="name"/>
         </Chart>
       </Card>
     );
@@ -351,22 +304,6 @@ class PropertyTreeGraph extends React.Component {
       type: "hierarchy.indented",
       // this layout algorithm needs to use pure data
       direction: "LR",
-
-      getHGap () {
-        return 10;
-      },
-
-      getVGap () {
-        return 10;
-      },
-
-      getHeight () {
-        return 10;
-      },
-
-      getWidth (d) {
-        return 10 * d.name.length;
-      }
     });
     return (
       <Modal title={ this.props.title }
