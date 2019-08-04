@@ -20,7 +20,7 @@ export default [
             component: 'Instance',
           },
           {
-            path: 'actuator',
+            path: 'instance/*',
             component: './Instance/actuator',
             hideInMenu: true
           },
