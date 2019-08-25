@@ -2,6 +2,7 @@ import React from "react";
 import {connect} from "dva";
 import PropsMonitor from '../component/PropsMonitor';
 import MetricsGraph from '../component/MetricsGraph';
+import PropertyDetail from "../component/PropertyDetail";
 
 /**
  * 应用信息展示控制台
@@ -17,7 +18,6 @@ class OverView extends React.Component {
     this.load('fetchThread');
 
     const intervalId = setInterval(() => {
-      this.load('fetchHealth');
       this.load('fetchMemory');
       this.load('fetchThread');
 
@@ -36,9 +36,7 @@ class OverView extends React.Component {
         <div style={{display: 'flex'}}>
           <PropsMonitor
             title="Health"
-            data={this.props.monitor.health}
-            graphAnchor="#env/health"
-            detailAnchor="#env/health"/>
+            data={this.props.monitor.health}/>
           <MetricsGraph
             title="Thread"
             data={this.getThreadSummary()}/>
@@ -51,6 +49,9 @@ class OverView extends React.Component {
             title="Memory:NonHeap"
             data={this.getMemoryNonHeapData()}/>
         </div>
+        <PropertyDetail
+          title="Detail"
+          data={this.props.monitor.health.detail === undefined ? [] : this.props.monitor.health.detail}/>
       </div>
     )
   };

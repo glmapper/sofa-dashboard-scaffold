@@ -1,6 +1,7 @@
 import React from "react";
 import {connect} from "dva";
 import PropsMonitor from '../component/PropsMonitor';
+import PropertyDetail from "../component/PropertyDetail";
 
 /**
  * 应用信息展示控制台
@@ -34,6 +35,9 @@ class Environment extends React.Component {
           data={this.props.monitor.env}
           graphAnchor="#env/graph"
           detailAnchor="#env/detail"/>
+        <PropertyDetail
+          title="Detail"
+          data={this.props.monitor.env.detail === undefined ? [] : this.props.monitor.env.detail}/>
       </div>
     )
   };

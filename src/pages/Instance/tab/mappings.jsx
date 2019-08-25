@@ -1,6 +1,7 @@
 import React from "react";
 import {connect} from "dva";
 import PropsMonitor from '../component/PropsMonitor';
+import PropertyDetail from "../component/PropertyDetail";
 
 /**
  * 应用信息展示控制台
@@ -34,6 +35,9 @@ class Mappings extends React.Component {
           data={this.props.monitor.mappings}
           graphAnchor="#mappings/graph"
           detailAnchor="#mappings/detail"/>
+        <PropertyDetail
+          title="Detail"
+          data={this.props.monitor.mappings.detail === undefined ? [] : this.props.monitor.mappings.detail}/>
       </div>
     )
   };

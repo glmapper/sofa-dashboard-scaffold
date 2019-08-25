@@ -1,6 +1,7 @@
 import React from "react";
 import {connect} from "dva";
 import PropsMonitor from '../component/PropsMonitor';
+import PropertyDetail from "../component/PropertyDetail";
 
 /**
  * 应用信息展示控制台
@@ -28,12 +29,9 @@ class Loggers extends React.Component {
   render() {
     return (
       <div>
-        <PropsMonitor
-          width="88%"
+        <PropertyDetail
           title="Loggers"
-          data={this.props.monitor.loggers}
-          graphAnchor="#loggers/graph"
-          detailAnchor="#loggers/detail"/>
+          data={this.props.monitor.loggers.detail === undefined ? [] : this.props.monitor.loggers.detail}/>
       </div>
     )
   };

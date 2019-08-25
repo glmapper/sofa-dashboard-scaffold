@@ -1,6 +1,6 @@
 import React from "react";
-import {Modal} from 'antd';
 import styles from '../monitor.less';
+import {Card} from "antd";
 
 /**
  * 用于展示属性详情的弹窗
@@ -12,7 +12,9 @@ class PropertyDetail extends React.Component {
       ref = []
     }
     const thisPrefix = prefix === undefined ? "" : prefix;
-    if (data.children === undefined) {
+    if (data === undefined) {
+      // Do nothing
+    } else if (data.children === undefined) {
       ref.push({
         "name": data.name,
         "value": data.value,
@@ -30,13 +32,7 @@ class PropertyDetail extends React.Component {
   render() {
     const list = this.convertToList(this.props.data);
     return (
-      <Modal
-        title={this.props.title}
-        visible={this.props.visible}
-        width="85%"
-        onCancel={this.props.dismiss}
-        onOk={this.props.dismiss}>
-
+      <Card title={this.props.title}>
         {
           list.map(item => {
             return (
@@ -50,8 +46,7 @@ class PropertyDetail extends React.Component {
             );
           })
         }
-
-      </Modal>
+      </Card>
     );
   }
 
