@@ -1,5 +1,5 @@
 import React from "react";
-import {connect} from "dva";
+import { connect } from "dva";
 import PropsMonitor from '../component/PropsMonitor';
 import MetricsGraph from '../component/MetricsGraph';
 import PropertyDetail from "../component/PropertyDetail";
@@ -7,7 +7,7 @@ import PropertyDetail from "../component/PropertyDetail";
 /**
  * 应用信息展示控制台
  */
-@connect(({monitor}) => ({
+@connect(({ monitor }) => ({
   monitor: monitor,
 }))
 class OverView extends React.Component {
@@ -22,7 +22,7 @@ class OverView extends React.Component {
       this.load('fetchThread');
 
     }, 5000);
-    this.setState({intervalId: intervalId})
+    this.setState({ intervalId: intervalId })
   }
 
   componentWillUnmount() {
@@ -33,31 +33,31 @@ class OverView extends React.Component {
   render() {
     return (
       <div>
-        <div style={{display: 'flex'}}>
+        <div style={{ display: 'flex' }}>
           <PropsMonitor
             title="Health"
-            data={this.props.monitor.health}/>
+            data={this.props.monitor.health} />
           <MetricsGraph
             title="Thread"
-            data={this.getThreadSummary()}/>
+            data={this.getThreadSummary()} />
         </div>
-        <div style={{display: 'flex'}}>
+        <div style={{ display: 'flex' }}>
           <MetricsGraph
             title="Memory:Heap"
-            data={this.getMemoryHeapData()}/>
+            data={this.getMemoryHeapData()} />
           <MetricsGraph
             title="Memory:NonHeap"
-            data={this.getMemoryNonHeapData()}/>
+            data={this.getMemoryNonHeapData()} />
         </div>
         <PropertyDetail
           title="Detail"
-          data={this.props.monitor.health.detail === undefined ? [] : this.props.monitor.health.detail}/>
+          data={this.props.monitor.health.detail === undefined ? [] : this.props.monitor.health.detail} />
       </div>
     )
   };
 
   load = (type) => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'monitor/' + type,
       payload: {
@@ -86,7 +86,7 @@ class OverView extends React.Component {
         value: item.value.live
       },]
     }).reduce((a, b) => a.concat(b), []);
-    console.log(result);
+
     return result;
   }
 
@@ -106,7 +106,7 @@ class OverView extends React.Component {
         value: item.value.heap.used
       }]
     }).reduce((a, b) => a.concat(b), []);
-    console.log(result);
+
     return result
   }
 
@@ -131,7 +131,7 @@ class OverView extends React.Component {
         value: nonheap.metaspace
       },]
     }).reduce((a, b) => a.concat(b), []);
-    console.log(result);
+
     return result
   }
 }
