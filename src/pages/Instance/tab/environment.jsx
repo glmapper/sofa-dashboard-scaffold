@@ -1,12 +1,12 @@
 import React from "react";
-import {connect} from "dva";
+import { connect } from "dva";
 import PropsMonitor from '../component/PropsMonitor';
 import PropertyDetail from "../component/PropertyDetail";
 
 /**
  * 应用信息展示控制台
  */
-@connect(({monitor}) => ({
+@connect(({ monitor }) => ({
   monitor: monitor,
 }))
 class Environment extends React.Component {
@@ -18,7 +18,7 @@ class Environment extends React.Component {
       this.load('fetchEnv');
 
     }, 5000);
-    this.setState({intervalId: intervalId})
+    this.setState({ intervalId: intervalId })
   }
 
   componentWillUnmount() {
@@ -29,21 +29,21 @@ class Environment extends React.Component {
   render() {
     return (
       <div>
-        <PropsMonitor
+        {/* <PropsMonitor
           width="88%"
           title="Environment"
           data={this.props.monitor.env}
           graphAnchor="#env/graph"
-          detailAnchor="#env/detail"/>
+          detailAnchor="#env/detail" /> */}
         <PropertyDetail
-          title="Detail"
-          data={this.props.monitor.env.detail === undefined ? [] : this.props.monitor.env.detail}/>
+          title="Environment"
+          data={this.props.monitor.env.detail === undefined ? [] : this.props.monitor.env.detail} />
       </div>
     )
   };
 
   load = (type) => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'monitor/' + type,
       payload: {

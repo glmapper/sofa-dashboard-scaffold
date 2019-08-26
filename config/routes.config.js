@@ -60,31 +60,31 @@ export default [
           },
         ]
       },
-      {
-        path: '/demo-page',
-        name: 'DemoPage',
-        icon: 'build',
-        component: 'DemoPage',
-        routes: [
-          {
-            path: 'p1',
-            name: 'p1',
-            component: 'DemoPage',
-            routes: [
-              {
-                path: 'p2',
-                name: 'p2',
-                component: 'DemoPage',
-              },
-            ]
-          },
-          {
-            path: 'p3',
-            name: 'p3',
-            component: 'DemoPage',
-          }
-        ]
-      },
+      // {
+      //   path: '/demo-page',
+      //   name: 'DemoPage',
+      //   icon: 'build',
+      //   component: 'DemoPage',
+      //   routes: [
+      //     {
+      //       path: 'p1',
+      //       name: 'p1',
+      //       component: 'DemoPage',
+      //       routes: [
+      //         {
+      //           path: 'p2',
+      //           name: 'p2',
+      //           component: 'DemoPage',
+      //         },
+      //       ]
+      //     },
+      //     {
+      //       path: 'p3',
+      //       name: 'p3',
+      //       component: 'DemoPage',
+      //     }
+      //   ]
+      // },
 
       // 登录注册页面，不展示在菜单侧边栏
       {

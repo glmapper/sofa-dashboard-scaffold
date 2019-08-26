@@ -2,8 +2,6 @@ import React from "react";
 import styles from '../monitor.less';
 import { Card } from "antd";
 import ReactJson from 'react-json-view'
-// import { Tree } from 'antd';
-// const { TreeNode } = Tree;
 
 /**
  * 用于展示属性详情的弹窗
